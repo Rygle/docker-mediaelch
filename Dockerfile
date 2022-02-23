@@ -1,16 +1,18 @@
-FROM jlesage/baseimage-gui:ubuntu-18.04-v3
+FROM jlesage/baseimage-gui:ubuntu-20.04
 
 RUN apt-get update -y
 RUN apt-get upgrade -y
 
 # Required for `add-apt-repository`
 RUN apt-get install -y software-properties-common
+RUN rm -rf /var/lib/apt/lists/*
 
 # Add the repository to your system
 RUN add-apt-repository ppa:mediaelch/mediaelch-stable
 RUN apt-get update -y
 # Install MediaElch
 RUN apt-get install -y mediaelch
+RUN rm -rf /var/lib/apt/lists/*
 
 # MediaElch requires a more modern GCC:
 #RUN add-apt-repository ppa:ubuntu-toolchain-r/test
@@ -24,6 +26,7 @@ RUN apt-get install -y mediaelch
 #RUN apt-get install -y libmediainfo-dev
 # ffmpeg is required at runtime to create random screenshots
 RUN apt-get install -y ffmpeg
+RUN rm -rf /var/lib/apt/lists/*
 
 # Qt (alternative: download and install Qt from its official website)
 #RUN apt-get install -y qt5-default qtmultimedia5-dev qtdeclarative5-dev qtdeclarative5-controls-plugin qtdeclarative5-models-plugin
@@ -75,8 +78,10 @@ RUN echo 'export LANGUAGE=en_US.UTF-8' >> /home/mediaelch/.bashrc
 ENV APP_NAME="MediaElch"
 ENV DISPLAY_WIDTH="1600"
 ENV DISPLAY_HEIGHT="900"
-VOLUME ["/movies"]
+VOLUME ["/media/movies"]
+VOLUME ["/media/tv"]
 VOLUME ["/home/mediaelch/.config/kvibes"]
+# VOLUME ["/config/xdg/config/kvibes"]
 
 COPY startapp.sh /startapp.sh
 
