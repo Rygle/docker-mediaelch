@@ -1,4 +1,4 @@
-FROM jlesage/baseimage-gui:ubuntu-20.04
+FROM jlesage/baseimage-gui:ubuntu-20.04-v3.5.8
 
 RUN apt-get update -y
 RUN apt-get upgrade -y
