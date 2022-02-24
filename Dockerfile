@@ -4,14 +4,14 @@ RUN apt-get update -y
 RUN apt-get upgrade -y
 
 # Required for `add-apt-repository`
-RUN apt-get install -y software-properties-common
+RUN apt-get -y --no-install-recommends install software-properties-common
 # RUN rm -rf /var/lib/apt/lists/*
 
 # Add the repository to your system
 RUN add-apt-repository ppa:mediaelch/mediaelch-stable
 RUN apt-get update -y
 # Install MediaElch
-RUN apt-get install -y mediaelch
+RUN apt-get -y --no-install-recommends install mediaelch
 # RUN rm -rf /var/lib/apt/lists/*
 
 # MediaElch requires a more modern GCC:
@@ -59,7 +59,7 @@ RUN adduser --disabled-password --gecos ""  mediaelch
 COPY entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-RUN apt-get install -y locales
+RUN apt-get -y --no-install-recommends install locales
 RUN locale-gen en_US.UTF-8  
 RUN update-locale LANG=en_US.UTF-8
 ENV LANG en_US.UTF-8  
@@ -72,7 +72,8 @@ RUN echo 'export LC_ALL=en_US.UTF-8' >> /home/mediaelch/.bashrc
 RUN echo 'export LANG=en_US.UTF-8' >> /home/mediaelch/.bashrc
 RUN echo 'export LANGUAGE=en_US.UTF-8' >> /home/mediaelch/.bashrc
 
-#EXPOSE 22
+
+EXPOSE 22
 #VOLUME /movies /shows /home/mediaelch/.config/kvibes /home/mediaelch/.ssh/authorized_keys
 # Define mountable directories.
 ENV APP_NAME="MediaElch"
@@ -82,8 +83,14 @@ VOLUME ["/media/movies"]
 VOLUME ["/media/tv"]
 VOLUME ["/home/mediaelch/.config/kvibes"]
 # VOLUME ["/config/xdg/config/kvibes"]
+# VOLUME ["/.config/kvibes/MediaElch.conf"]
 
+# StartApp
 COPY startapp.sh /startapp.sh
+
+# Cleanup
+RUN apt-get -y autoremove
+RUN apt-get -y clean
 
 #ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 #CMD    ["/usr/sbin/sshd", "-D"]
