@@ -1,96 +1,61 @@
 FROM jlesage/baseimage-gui:ubuntu-20.04-v3.5.8
 
-RUN apt-get update -y
-RUN apt-get upgrade -y
-
-# Required for `add-apt-repository`
-RUN apt-get -y --no-install-recommends install software-properties-common
-# RUN rm -rf /var/lib/apt/lists/*
-
-# Add the repository to your system
-RUN add-apt-repository ppa:mediaelch/mediaelch-stable
-RUN apt-get update -y
-# Install MediaElch
-RUN apt-get -y --no-install-recommends install mediaelch
-# RUN rm -rf /var/lib/apt/lists/*
-
-# MediaElch requires a more modern GCC:
-#RUN add-apt-repository ppa:ubuntu-toolchain-r/test
-#RUN apt-get update -y
-#RUN apt-get install -y g++-8 gcc-8
-#RUN update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-8 90
-#RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-8 90
-
-# Build tools and other libraries
-#RUN apt-get install -y build-essential git libcurl4-openssl-dev
-#RUN apt-get install -y libmediainfo-dev
-# ffmpeg is required at runtime to create random screenshots
-RUN apt-get install -y ffmpeg
-# RUN rm -rf /var/lib/apt/lists/*
-
-# Qt (alternative: download and install Qt from its official website)
-#RUN apt-get install -y qt5-default qtmultimedia5-dev qtdeclarative5-dev qtdeclarative5-controls-plugin qtdeclarative5-models-plugin
-
-# Get and Build
-#RUN git clone https://github.com/Komet/MediaElch.git
-#RUN cd MediaElch
-#RUN git submodule update --init
-#RUN mkdir build && cd $_
-#RUN qmake ..
-#RUN make -j4
-
-# Install
-#RUN make install
-
-# Install SSH server
-#RUN apt-get install -y openssh-server
-#RUN mkdir /var/run/sshd
-
-# Create user
-RUN adduser --disabled-password --gecos ""  mediaelch
-
-# Configuration SSH
-#RUN sed -ri 's/^PermitRootLogin\s+.*/PermitRootLogin no/' /etc/ssh/sshd_config
-#RUN sed -ri 's/UsePAM yes/#UsePAM yes/g' /etc/ssh/sshd_config
-
-#RUN mkdir -p /home/mediaelch/.ssh && chown mediaelch:mediaelch /home/mediaelch/.ssh && chmod 700 /home/mediaelch/.ssh
-
-# Entrypoint
-COPY entrypoint.sh /usr/local/bin/docker-entrypoint.sh
-RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-
-RUN apt-get -y --no-install-recommends install locales
-RUN locale-gen en_US.UTF-8  
-RUN update-locale LANG=en_US.UTF-8
-ENV LANG en_US.UTF-8  
-ENV LANGUAGE en_US:en  
-ENV LC_ALL en_US.UTF-8
-RUN echo 'export LC_ALL=en_US.UTF-8' >> /home/mediaelch/.profile
-RUN echo 'export LANG=en_US.UTF-8' >> /home/mediaelch/.profile
-RUN echo 'export LANGUAGE=en_US.UTF-8' >> /home/mediaelch/.profile
-RUN echo 'export LC_ALL=en_US.UTF-8' >> /home/mediaelch/.bashrc
-RUN echo 'export LANG=en_US.UTF-8' >> /home/mediaelch/.bashrc
-RUN echo 'export LANGUAGE=en_US.UTF-8' >> /home/mediaelch/.bashrc
-
-
-EXPOSE 22
-#VOLUME /movies /shows /home/mediaelch/.config/kvibes /home/mediaelch/.ssh/authorized_keys
-# Define mountable directories.
-ENV APP_NAME="MediaElch"
-ENV DISPLAY_WIDTH="1600"
-ENV DISPLAY_HEIGHT="900"
+# Do most installs at once to minimise docker image layers
+# Install software-properties-common to allow 'add-apt-repository'
+# Install mediaelch repository, then mediaelch
+# Install ffmpeg for mediaelch to create screenshots
+# Do progressive cleanups to shrink layers
+# Create user for mediaelch
+# Generate docker-entrypoint.sh & startapp.sh
+RUN apt-get update -y && \
+    apt-get upgrade -y && \
+    apt-get -y --no-install-recommends install software-properties-common && \
+    add-apt-repository ppa:mediaelch/mediaelch-stable && \
+    apt-get update -y && \
+    apt-get -y --no-install-recommends install \
+     mediaelch \
+     ffmpeg \
+     locales && \
+    apt-get -y autoremove && \
+    apt-get -y clean && \
+    rm -rf /var/lib/apt/lists/* && \
+    adduser --disabled-password --gecos ""  mediaelch && \
+    touch /usr/local/bin/docker-entrypoint.sh && \
+    echo '#!/bin/sh' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo 'set -e' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo 'PUID=${PUID:-20000}' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo 'PGID=${PGID:-20000}' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo 'groupmod -o -g "$PGID" mediaelch' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo 'usermod -o -u "$PUID" mediaelch' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo 'chown mediaelch:mediaelch /home/mediaelch' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo 'chown mediaelch:mediaelch /home/mediaelch/.*' >> /usr/local/bin/docker-entrypoint.sh && \
+    echo 'exec "$@"' >> /usr/local/bin/docker-entrypoint.sh && \
+    chmod +x /usr/local/bin/docker-entrypoint.sh && \
+    locale-gen en_US.UTF-8 && \
+    update-locale LANG=en_US.UTF-8 && \
+    echo 'export LC_ALL=en_US.UTF-8' >> /home/mediaelch/.profile && \
+    echo 'export LANG=en_US.UTF-8' >> /home/mediaelch/.profile && \
+    echo 'export LANGUAGE=en_US.UTF-8' >> /home/mediaelch/.profile && \
+    echo 'export LC_ALL=en_US.UTF-8' >> /home/mediaelch/.bashrc && \
+    echo 'export LANG=en_US.UTF-8' >> /home/mediaelch/.bashrc && \
+    echo 'export LANGUAGE=en_US.UTF-8' >> /home/mediaelch/.bashrc && \
+    touch /startapp.sh && \
+    echo '#!/bin/sh' >> /startapp.sh && \
+    echo 'exec env HOME=/home/mediaelch /usr/bin/MediaElch' >> /startapp.sh && \
+    chmod +x /startapp.sh && \
+    apt-get -y autoremove && \
+    apt-get -y clean && \
+    rm -rf /var/lib/apt/lists/* \
+    
+# Define variables.
+ENV LANG=en_US.UTF-8 \
+    LANGUAGE=en_US:en \
+    LC_ALL=en_US.UTF-8 \
+    APP_NAME="MediaElch" \
+    DISPLAY_WIDTH="1600" \
+    DISPLAY_HEIGHT="900"
 VOLUME ["/media/movies"]
 VOLUME ["/media/tv"]
 VOLUME ["/home/mediaelch/.config/kvibes"]
 # VOLUME ["/config/xdg/config/kvibes"]
 # VOLUME ["/.config/kvibes/MediaElch.conf"]
-
-# StartApp
-COPY startapp.sh /startapp.sh
-
-# Cleanup
-RUN apt-get -y autoremove
-RUN apt-get -y clean
-
-#ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
-#CMD    ["/usr/sbin/sshd", "-D"]
