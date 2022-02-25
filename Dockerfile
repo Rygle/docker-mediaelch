@@ -8,7 +8,10 @@ FROM jlesage/baseimage-gui:ubuntu-20.04-v3.5.8
 # Create user for mediaelch
 # Generate docker-entrypoint.sh & startapp.sh
 RUN apt-get update -y && \
-    apt-get upgrade -y && \
+    # apt-get upgrade -y && \
+    apt-get -y autoremove && \
+    apt-get -y clean && \
+    rm -rf /var/lib/apt/lists/* && \
     apt-get -y --no-install-recommends install software-properties-common && \
     add-apt-repository ppa:mediaelch/mediaelch-stable && \
     apt-get update -y && \
