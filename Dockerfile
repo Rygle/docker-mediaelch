@@ -45,7 +45,7 @@ RUN apt-get update -y && \
     chmod +x /startapp.sh && \
     apt-get -y autoremove && \
     apt-get -y clean && \
-    rm -rf /var/lib/apt/lists/* \
+    rm -rf /var/lib/apt/lists/*
     
 # Define variables.
 ENV LANG=en_US.UTF-8 \
