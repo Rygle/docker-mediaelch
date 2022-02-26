@@ -7,7 +7,7 @@ Run MediaElch with HTTP GUI (port 5800) or RDM (port 5900).
 Exported Volumes 
 
 ## Usage
-Containerizd MediaElch and allow remote accesss through HTTP GUI. Connect to `http://<docker_ip>:5800` to access mediaelch GUI
+Containerised MediaElch and allow remote accesss through HTTP GUI. Connect to `http://<docker_ip>:5800` to access mediaelch GUI
 
 ## Parameters
 * `-p 5800:5800 -p 5900:5900` - the port(s)
