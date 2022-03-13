@@ -24,4 +24,5 @@ jobs:
       run: docker build . --file Dockerfile --tag ozrygle/mediaelch:latest --tag ozrygle/mediaelch:20.04
       
     - name: Docker Push
-      run: docker push ozrygle/mediaelch
+      run: docker push ozrygle/mediaelch:latest
+      run: docker push ozrygle/mediaelch:20.04
