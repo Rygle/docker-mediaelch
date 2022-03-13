@@ -1,4 +1,4 @@
-FROM jlesage/baseimage-gui:ubuntu-20.04-v3.5.8
+FROM jlesage/baseimage-gui:ubuntu-20.04-v3
 
 # Do most installs at once to minimise docker image layers
 # Install software-properties-common to allow 'add-apt-repository'
