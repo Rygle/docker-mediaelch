@@ -4,7 +4,9 @@ Container for MediaElch (http://www.kvibes.de/mediaelch/)
 
 Run MediaElch with HTTP GUI (port 5800) or RDM (port 5900).
 
-Exported Volumes 
+Exported Volumes
+
+Builds and pushes two docker images for Ubuntu 20.04/latest and Ubuntu 18.04
 
 ## Usage
 Containerised MediaElch and allow remote accesss through HTTP GUI. Connect to `http://<docker_ip>:5800` to access mediaelch GUI
