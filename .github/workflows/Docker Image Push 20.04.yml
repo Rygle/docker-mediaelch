@@ -21,7 +21,7 @@ jobs:
       run: |
         docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
     - name: Build Docker image
-      run: docker build . --file Dockerfile --tag ozrygle/mediaelch:latest --tag ozrygle/mediaelch:20.04
+      run: docker build . --file Dockerfile_Ubuntu_20.04 --tag ozrygle/mediaelch:latest --tag ozrygle/mediaelch:20.04
       
     - name: Docker Push Latest
       run: docker push ozrygle/mediaelch:latest
