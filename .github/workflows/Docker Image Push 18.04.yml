@@ -1,6 +1,8 @@
 name: Docker Image Push 18.04
 
 on:
+  workflow_dispatch:
+    branches: [ master ]
   push:
     branches: [ master ]
   pull_request:
