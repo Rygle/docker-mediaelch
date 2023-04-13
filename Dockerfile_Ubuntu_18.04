@@ -1,4 +1,4 @@
-FROM jlesage/baseimage-gui:ubuntu-18.04-v4.3.5
+FROM jlesage/baseimage-gui:ubuntu-18.04-v4
 
 # Do most installs at once to minimise docker image layers!
 # Install software-properties-common to allow 'add-apt-repository'
